@@ -18,6 +18,7 @@ int main(int argc, const char * argv[])
     {
     replay = safeCrackerGame();
     }
+    return 0;
 }
 int safeCrackerGame(void)
 {

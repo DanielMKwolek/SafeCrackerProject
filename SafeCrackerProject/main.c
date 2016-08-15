@@ -8,63 +8,78 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int safeCrackerGame(void);
 int askForNumber(int possibilities, char *prompt);
+
+
+
 int main(int argc, const char * argv[])
 {
-    int replay = 1;
-    while (replay == 1)
+    int replay = 0;
+    do
     {
-    replay = safeCrackerGame();
-    }
+        replay = safeCrackerGame();
+    } while (replay == 1);
     return 0;
 }
+
 int safeCrackerGame(void)
 {
-/*
- Ask the user for their name and use it to address them in the other steps.
- The safe in our game should have 4 randomly generated numbers from 0-3.
- The user should enter guesses 4 numbers at a time
- if the user guesses correctly, they win and the game ends.
- if the user guesses incorrectly, tell them how many they guessed correctly and allow them to try again
- */
     
     printf("Hello, what would you like to be called? (99 char or less please)\n: ");
     fpurge(stdin);
-    char name[100] = {'\0'};
+    char name[100];
     int scanResults = scanf("%99s", name);
+    fpurge(stdin);
     printf("Hello, %s\n", name);
+    int safeMax;
+    do
+    {
+        printf("What would you like the range of the safe combo to be? (9 max)\n: ");
+        scanf("%1d", &safeMax);
+        fpurge(stdin);
+    } while (safeMax <= 0 && safeMax > 9);
+    
     int correctCombination[5] =
     {
-        arc4random_uniform(3),
-        arc4random_uniform(3),
-        arc4random_uniform(3),
-        arc4random_uniform(3),
+        arc4random_uniform(safeMax+1),
+        arc4random_uniform(safeMax+1),
+        arc4random_uniform(safeMax+1),
+        arc4random_uniform(safeMax+1),
         '\0'
     };
-    printf("The safe combination is\n%d, %d, %d, %d\n\n", correctCombination[0], correctCombination[1], correctCombination[2], correctCombination[3]); //Delete this later
-    printf("What is your guess?\n: ");
+    
+    
+    correctCombination[4] = '\0';
     fpurge(stdin);
     int guess[5] = {'\0'};
     int correct = 0;
-    int numberGuesses = 0;
+    int numberGuesses = 1;
+    int guessMax = 6;
+    printf("How many guesses would you like?\n");
+    scanf("%2d", &guessMax);
+    int guessesLeft = guessMax;
+    printf("You have %d guesses\nWhat is your guess? (4 numbers please: ie \"0000\")\n: ", guessesLeft);
     scanResults = scanf("%1d%1d%1d%1d", &guess[0], &guess[1], &guess[2], &guess[3]);
     for (int i = 0; i < 4; i++)
     {
-            if (guess[i] == correctCombination[i])
-            {
-                correct++;
-            }
+        if (guess[i] == correctCombination[i])
+        {
+            correct++;
+        }
     }
-    while (correct != 4)
+    while (correct != 4 && guessesLeft > 1)
     {
-        numberGuesses++;
-        printf("That time you guessed %d of the numbers correctly with\n: %d%d%d%d\nGuess again\n: ", correct, guess[0], guess[1], guess[2], guess[3]);
+        guessesLeft = (guessMax - numberGuesses);
+        printf("That time you guessed %d of the numbers correctly with\n: %d, %d, %d, %d\nGuesses left: %d\n: ", correct, guess[0], guess[1], guess[2], guess[3], guessesLeft);
         correct = 0;
         fpurge(stdin);
         scanResults = scanf("%1d%1d%1d%1d", &guess[0], &guess[1], &guess[2], &guess[3]);
         printf("%d\n", scanResults);
+        
+        numberGuesses++;
         for (int i = 0; i < 4; i++)
         {
             if (guess[i] == correctCombination[i])
@@ -74,8 +89,13 @@ int safeCrackerGame(void)
         }
         
     }
-    numberGuesses++;
-    printf("Congratulations!\nYou correctly guessed the safe combination of\n%d, %d, %d, %d\nIn %d guesses!\n\n", correctCombination[0], correctCombination[1], correctCombination[2], correctCombination[3], numberGuesses);
+    if (correct == 4)
+    {
+        printf("Congratulations!\nYou correctly guessed the safe combination of\n%d, %d, %d, %d\nIn %d guesses!\n\n", correctCombination[0], correctCombination[1], correctCombination[2], correctCombination[3], (numberGuesses));
+    } else
+    {
+        printf("Sorry, the combination was:\n%d, %d, %d, %d\n\n", correctCombination[0], correctCombination[1], correctCombination[2], correctCombination[3]);
+    }
     printf("Would you like to play again?\n1: Yes\n0: No\n");
     int answer = askForNumber(1, "Would you like to play again?\n1: Yes\n0: No\n");
     if (answer == 1)
@@ -107,6 +127,7 @@ int askForNumber(int possibilities, char *prompt)
             }
         }
     }
-    
     return answer;
 }
+
+
